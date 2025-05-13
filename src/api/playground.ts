@@ -3,7 +3,7 @@ import { APIRoutes } from './routes'
 import { Agent, ComboboxAgent, SessionEntry } from '@/types/playground'
 
 const getHeaders = (accessToken?: string) => ({
-  authorization: accessToken ? `Bearer: ${accessToken}` : ''
+  authorization: accessToken ? `Bearer ${accessToken}` : ''
 })
 
 export const getPlaygroundAgentsAPI = async (
