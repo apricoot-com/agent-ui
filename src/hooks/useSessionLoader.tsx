@@ -12,6 +12,7 @@ import {
   ChatEntry
 } from '@/types/playground'
 import { getJsonMarkdown } from '@/lib/utils'
+import { useAuth } from './useAuth'
 
 interface SessionResponse {
   session_id: string
@@ -26,6 +27,7 @@ interface SessionResponse {
 }
 
 const useSessionLoader = () => {
+  const { accessToken } = useAuth()
   const setMessages = usePlaygroundStore((state) => state.setMessages)
   const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
   const setIsSessionsLoading = usePlaygroundStore(
@@ -35,12 +37,13 @@ const useSessionLoader = () => {
 
   const getSessions = useCallback(
     async (agentId: string) => {
-      if (!agentId || !selectedEndpoint) return
+      if (!agentId || !selectedEndpoint || !accessToken) return
       try {
         setIsSessionsLoading(true)
         const sessions = await getAllPlaygroundSessionsAPI(
           selectedEndpoint,
-          agentId
+          agentId,
+          accessToken
         )
         setSessionsData(sessions)
       } catch {
@@ -49,12 +52,12 @@ const useSessionLoader = () => {
         setIsSessionsLoading(false)
       }
     },
-    [selectedEndpoint, setSessionsData, setIsSessionsLoading]
+    [selectedEndpoint, setSessionsData, setIsSessionsLoading, accessToken]
   )
 
   const getSession = useCallback(
     async (sessionId: string, agentId: string) => {
-      if (!sessionId || !agentId || !selectedEndpoint) {
+      if (!sessionId || !agentId || !selectedEndpoint || !accessToken) {
         return null
       }
 
@@ -62,7 +65,8 @@ const useSessionLoader = () => {
         const response = (await getPlaygroundSessionAPI(
           selectedEndpoint,
           agentId,
-          sessionId
+          sessionId,
+          accessToken
         )) as SessionResponse
 
         if (response && response.memory) {
@@ -152,7 +156,7 @@ const useSessionLoader = () => {
         return null
       }
     },
-    [selectedEndpoint, setMessages]
+    [selectedEndpoint, setMessages, accessToken]
   )
 
   return { getSession, getSessions }

@@ -9,8 +9,10 @@ import {
   getPlaygroundStatusAPI
 } from '@/api/playground'
 import { useQueryState } from 'nuqs'
+import { useAuth } from './useAuth'
 
 const useChatActions = () => {
+  const { accessToken } = useAuth()
   const { chatInputRef } = usePlaygroundStore()
   const selectedEndpoint = usePlaygroundStore((state) => state.selectedEndpoint)
   const [, setSessionId] = useQueryState('session')
@@ -27,22 +29,28 @@ const useChatActions = () => {
 
   const getStatus = useCallback(async () => {
     try {
-      const status = await getPlaygroundStatusAPI(selectedEndpoint)
+      if (!accessToken) {
+        return
+      }
+      const status = await getPlaygroundStatusAPI(selectedEndpoint, accessToken)
       return status
     } catch {
       return 503
     }
-  }, [selectedEndpoint])
+  }, [selectedEndpoint, accessToken])
 
   const getAgents = useCallback(async () => {
     try {
-      const agents = await getPlaygroundAgentsAPI(selectedEndpoint)
+      if (!accessToken) {
+        return []
+      }
+      const agents = await getPlaygroundAgentsAPI(selectedEndpoint, accessToken)
       return agents
     } catch {
       toast.error('Error fetching agents')
       return []
     }
-  }, [selectedEndpoint])
+  }, [selectedEndpoint, accessToken])
 
   const clearChat = useCallback(() => {
     setMessages([])

@@ -1,15 +1,21 @@
 import { toast } from 'sonner'
-
 import { APIRoutes } from './routes'
-
 import { Agent, ComboboxAgent, SessionEntry } from '@/types/playground'
 
+const getHeaders = (accessToken?: string) => ({
+  authorization: accessToken ? `Bearer: ${accessToken}` : ''
+})
+
 export const getPlaygroundAgentsAPI = async (
-  endpoint: string
+  endpoint: string,
+  accessToken?: string
 ): Promise<ComboboxAgent[]> => {
   const url = APIRoutes.GetPlaygroundAgents(endpoint)
   try {
-    const response = await fetch(url, { method: 'GET' })
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: getHeaders(accessToken)
+    })
     if (!response.ok) {
       toast.error(`Failed to fetch playground agents: ${response.statusText}`)
       return []
@@ -29,23 +35,26 @@ export const getPlaygroundAgentsAPI = async (
   }
 }
 
-export const getPlaygroundStatusAPI = async (base: string): Promise<number> => {
+export const getPlaygroundStatusAPI = async (
+  base: string,
+  accessToken?: string
+): Promise<number> => {
   const response = await fetch(APIRoutes.PlaygroundStatus(base), {
-    method: 'GET'
+    method: 'GET',
+    headers: getHeaders(accessToken)
   })
   return response.status
 }
 
 export const getAllPlaygroundSessionsAPI = async (
   base: string,
-  agentId: string
+  agentId: string,
+  accessToken?: string
 ): Promise<SessionEntry[]> => {
   try {
     const response = await fetch(
       APIRoutes.GetPlaygroundSessions(base, agentId),
-      {
-        method: 'GET'
-      }
+      { method: 'GET', headers: getHeaders(accessToken) }
     )
     if (!response.ok) {
       if (response.status === 404) {
@@ -63,13 +72,12 @@ export const getAllPlaygroundSessionsAPI = async (
 export const getPlaygroundSessionAPI = async (
   base: string,
   agentId: string,
-  sessionId: string
+  sessionId: string,
+  accessToken?: string
 ) => {
   const response = await fetch(
     APIRoutes.GetPlaygroundSession(base, agentId, sessionId),
-    {
-      method: 'GET'
-    }
+    { method: 'GET', headers: getHeaders(accessToken) }
   )
   return response.json()
 }
@@ -77,13 +85,12 @@ export const getPlaygroundSessionAPI = async (
 export const deletePlaygroundSessionAPI = async (
   base: string,
   agentId: string,
-  sessionId: string
+  sessionId: string,
+  accessToken?: string
 ) => {
   const response = await fetch(
     APIRoutes.DeletePlaygroundSession(base, agentId, sessionId),
-    {
-      method: 'DELETE'
-    }
+    { method: 'DELETE', headers: getHeaders(accessToken) }
   )
   return response
 }
