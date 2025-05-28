@@ -44,7 +44,7 @@ const useChatActions = () => {
       if (!accessToken) {
         return []
       }
-      const agents = await getPlaygroundAgentsAPI(selectedEndpoint, accessToken)
+      const agents = await getPlaygroundAgentsAPI('', accessToken)
       return agents
     } catch {
       toast.error('Error fetching agents')
